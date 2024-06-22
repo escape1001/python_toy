@@ -12,7 +12,9 @@ import json
 
 
 # 현재 시각이 오후 6시 47분이라면 18:00을 time_now로 지정
+date_now = datetime.now(timezone("Asia/Seoul")).strftime('%y-%m-%d')
 time_now = datetime.now(timezone("Asia/Seoul")).strftime("%H:00")
+print(f"현재시긱:{time_now}")
 
 # 멜론, 지니 헤더 필요
 h = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36"}
@@ -45,7 +47,7 @@ def getMelon():
     melon_time_now = soup_melon_100.select(".hhmm .hour")[0].text
 
     while time_now != melon_time_now :
-        print(f"멜론 발매 지연중..")
+        print(f"멜론 발매 지연중.. {melon_time_now}")
         time.sleep(10)
         response_melon_100 = requests.get(melon_url_100, headers=h)
         soup_melon_100 = BeautifulSoup(response_melon_100.text, 'html.parser')
@@ -109,12 +111,19 @@ def getGenie():
     genie_time_soup = BeautifulSoup(response.text, 'html.parser')
     genie_time_now = genie_time_soup.select("#strHH")[0].attrs['value']+":00"
 
+    # 00시에 01:00으로 들어오는 에러에 임시대응
+    if time_now == "00:00" and genie_time_now == "01:00" :
+        genie_time_now = "00:00"
+
     while time_now != genie_time_now :
-        print(f"지니 발매 지연중...")
+        print(f"지니 발매 지연중... {genie_time_now}")
         time.sleep(10)
         response = requests.get(f'{genie_url}1', headers=h)
         genie_time_soup = BeautifulSoup(response.text, 'html.parser')
-        genie_time_now = genie_time_soup.select("#inc_time")[0].text
+        genie_time_now = genie_time_soup.select("#strHH")[0].attrs['value']+":00"
+
+        if time_now == "00:00" and genie_time_now == "01:00" :
+            genie_time_now = "00:00"
 
     # song_title과 일치하는 row 찾아서 현재 순위, 변동폭 저장
     soup_list = []
@@ -172,7 +181,7 @@ def getBugs():
     bugs_time_now = bugs_soup.select("time em")[0].text
 
     while time_now != bugs_time_now :
-        print(f"벅스 발매 지연중...")
+        print(f"벅스 발매 지연중... {bugs_time_now}")
         time.sleep(10)
         bugs_response = requests.get(bugs_url, headers=h)
         bugs_soup = BeautifulSoup(bugs_response.text, 'html.parser')
@@ -228,8 +237,9 @@ def track_chart(request):
     melon_data = getMelon()
     genie_data = getGenie()
     bugs_data = getBugs()
+    date = date_now if time_now == "00:00" else None
 
-    sheet.append_row([time_now] + list(melon_data.values()) + list(genie_data.values()) + list(bugs_data.values()))
+    sheet.append_row([date, time_now] + list(melon_data.values()) + list(genie_data.values()) + list(bugs_data.values()))
 
     # 임시 파일 삭제 (선택 사항)
     os.remove('credentials.json')
