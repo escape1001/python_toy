@@ -19,11 +19,13 @@ print(f"현재시긱:{time_now}")
 # 멜론, 지니 헤더 필요
 h = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36"}
 
+########### EDIT HERE ##############
 # 곡 정보, sid 모음
 target_song_title = "ABCD"
 melon_sid = "37633631"
 genie_sid = "106884911"
 bugs_sid = "33206960"
+####################################
 
 # 시트 정보
 google_doc_id="188qFe8m8ouX1LM_ThYVyaeQ85TqiUO1Xy5JAj5pYQQ4"
