@@ -28,8 +28,8 @@ bugs_sid = "33206960"
 ####################################
 
 # 시트 정보
-google_doc_id="188qFe8m8ouX1LM_ThYVyaeQ85TqiUO1Xy5JAj5pYQQ4"
-google_sheet_id = 1707328637
+google_doc_id="1ybI1XGWPHFIWlJJ9S74-r4Y1qTNsbooge1eBvOywkWU"
+google_sheet_id = 0
 
 def getMelon():
     melon_url_100 = "https://www.melon.com/chart/hot100/index.htm?chartType=D100"
