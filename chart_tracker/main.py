@@ -21,10 +21,10 @@ h = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
 
 ########### EDIT HERE ##############
 # 곡 정보, sid 모음
-target_song_title = "ABCD"
-melon_sid = "37633631"
-genie_sid = "106884911"
-bugs_sid = "33206960"
+target_song_title = "Sticky"
+melon_sid = "37693124"
+genie_sid = "107041750"
+bugs_sid = "6250570"
 ####################################
 
 # 시트 정보
@@ -45,7 +45,7 @@ def getMelon():
     response_melon_100 = requests.get(melon_url_100, headers=h)
     soup_melon_100 = BeautifulSoup(response_melon_100.text, 'html.parser')
 
-    # 시간이 현재 시간과 맞는지 체크하고, 안맞으면 10초 기다리기 반복
+    # 차트 시간이 현재 시간과 맞는지 체크하고, 안맞으면 10초 기다리기 반복
     melon_time_now = soup_melon_100.select(".hhmm .hour")[0].text
 
     while time_now != melon_time_now :
@@ -62,32 +62,29 @@ def getMelon():
     tr_list_100 = soup_melon_100.select("#tb_list tr")[1::]
     tr_list_30 = soup_melon_30.select("#tb_list tr")[1::]
 
-    # print(f"{melon_time_now}시")
-    # print("[멜론 Top 100 - 100일]")
+    # print(f"{melon_time_now}시 [멜론 Top 100 - 100일]")
     for item in tr_list_100 :
         if target_song_title in item.select(".wrap_song_info")[0].text :
-            곡명 = item.select('.wrap_song_info a')[0].text
-            아티스트 = item.select('.wrap_song_info a')[1].text
-            순위 = item.select('.rank')[0].text
-            변동 = item.select('.rank_wrap')[0].attrs['title']
+            title = item.select('.wrap_song_info a')[0].text
+            artist = item.select('.wrap_song_info a')[1].text
+            rank = item.select('.rank')[0].text
+            rank_change = item.select('.rank_wrap')[0].attrs['title']
 
-            # print(f"{곡명} - {아티스트} / {순위}위 ({변동})")
+            # print(f"{title} - {artist} / {rank}위 ({rank_change})")
 
-            melon_data["rank_100"] = int(순위)
-            # melon_data["rank_100_change"] = 변동
-
-    # print("[멜론 Top 100 - 30일]")
+            melon_data["rank_100"] = int(rank)
+            
+    # print(f"{melon_time_now}시 [멜론 Top 100 - 30일]")
     for item in tr_list_30 :
         if target_song_title in item.select(".wrap_song_info")[0].text :
-            곡명 = item.select('.wrap_song_info a')[0].text
-            아티스트 = item.select('.wrap_song_info a')[1].text
-            순위 = item.select('.rank')[0].text
-            변동 = item.select('.rank_wrap')[0].attrs['title']
+            title = item.select('.wrap_song_info a')[0].text
+            artist = item.select('.wrap_song_info a')[1].text
+            rank = item.select('.rank')[0].text
+            rank_change = item.select('.rank_wrap')[0].attrs['title']
 
-            # print(f"{곡명} - {아티스트} / {순위}위 ({변동})")
+            # print(f"{title} - {artist} / {rank}위 ({rank_change})")
 
-            melon_data["rank_30"] = int(순위)
-            # melon_data["rank_30_change"] = 변동
+            melon_data["rank_30"] = int(rank)
 
     # 하트 갯수 받아오기
     response_melon_like = requests.get(melon_like_url, headers=h)
@@ -137,21 +134,20 @@ def getGenie():
     table_list = sum([soup.select(".music-list-wrap") for soup in soup_list], [])
     rank_list = sum([table.select("tbody tr") for table in table_list], [])
 
-    # print(f"{genie_time_now} [지니 Top 200]")
+    # print(f"{genie_time_now}시 [지니 Top 200]")
     for item in rank_list :
         if target_song_title in item.select(".title")[0].text :
-            곡명 = item.select('.info .title')[0].text.replace("\n", "").strip()
-            아티스트 = item.select('.info .artist')[0].text.replace("\n", "").strip()
-            순위태그 = str(item.select('.number')[0])
-            순위시작 = 순위태그.index(">") + 1
-            순위끝 = 순위태그.index("<span")
-            순위 = 순위태그[순위시작:순위끝].strip()
-            변동 = item.select('.rank')[0].text.replace("\n", "")
+            title = item.select('.info .title')[0].text.replace("\n", "").strip()
+            artist = item.select('.info .artist')[0].text.replace("\n", "").strip()
+            rank_obj = str(item.select('.number')[0])
+            rank_start_idx = rank_obj.index(">") + 1
+            rank_end_idx = rank_obj.index("<span")
+            rank = rank_obj[rank_start_idx:rank_end_idx].strip()
+            rank_change = item.select('.rank')[0].text.replace("\n", "")
 
-            # print(f"{곡명} - {아티스트} / {순위}위 ({변동})")
+            # print(f"{title} - {artist} / {rank}위 ({rank_change})")
 
-            genie_data["rank"] = int(순위)
-            # genie_data["rank_change"] = 변동
+            genie_data["rank"] = int(rank)
 
     # 곡 상세 페이지 들어가서 전체 청취자수, 전체 재생수, 좋아요 수 저장
     detail_res = requests.get(f'{genie_detail_url}{genie_sid}', headers=h)
@@ -192,18 +188,17 @@ def getBugs():
     # song_title과 일치하는 row 찾아서 현재 순위, 변동폭 저장
     song_list = bugs_soup.select("table.byChart tr")
 
+    # print(f"{bugs_time_now}시 [벅스 차트]")
     for item in song_list :
         if target_song_title in item.select(".title")[0].text :
-            곡명 = item.select('.title')[0].text.replace("\n", "")
-            아티스트 = item.select('.artist')[0].text.replace("\n", "")
-            순위 = item.select('.ranking strong')[0].text.replace("\n", "")
-            변동 = item.select('.ranking p')[0].text.replace("\n", "").strip()
+            title = item.select('.title')[0].text.replace("\n", "")
+            artist = item.select('.artist')[0].text.replace("\n", "")
+            rank = item.select('.ranking strong')[0].text.replace("\n", "")
+            rank_change = item.select('.ranking p')[0].text.replace("\n", "").strip()
+            
+            # print(f"{title} - {artist} / {rank}위 ({rank_change})")
 
-            # print(f"{bugs_time_now}시 벅스 순위")
-            # print(f"{곡명} - {아티스트} / {순위}위 ({변동})")
-
-            bugs_data["rank"] = int(순위)
-            # bugs_data["rank_change"] = 변동
+            bugs_data["rank"] = int(rank)
 
     # 곡 상세 페이지 들어가서 하트 수 저장
     detail_respose = requests.get(f'{bugs_detail}{bugs_sid}', headers=h)
@@ -216,8 +211,7 @@ def getBugs():
 
 @functions_framework.http
 def track_chart(request):
-    import os
-    print("start")
+    print("start tracking")
     google_json_key_base64 = os.environ.get("GOOGLE_JSON_KEY", "Specified environment variable is not set.")
     google_json_key = base64.b64decode(google_json_key_base64).decode('utf-8')
     credentials_dict = json.loads(google_json_key)
