@@ -8,17 +8,20 @@ import pandas as pd
 
 
 chrome_path = "/Applications/Google"
-service = Service(executable_path=chrome_path)
-browser = webdriver.Chrome(ChromeDriverManager().install())
+# service = Service(executable_path=chrome_path)
+s = Service(ChromeDriverManager().install())
+browser = webdriver.Chrome(service=s)
 
 # 크롤링할 사이트 접속 - 20초 내로 로그인 해줄 것
-browser.get("https://weverse.io/onf/live")
+browser.get("https://weverse.io/aespa/live") # 크롤링 할 아티스트 페이지 URL
 time.sleep(20)
 
 #### 무한 스크롤 반복문 : 필요시 주석 해제하여 사용
 """
-before_h = browser.execute_script("return window.scrollY")
+before_h = browser.execute_script("return window.scrollY") #execute_script = 자바스크립트 명령어 실행
 while True:
+    # 맨 아래로 스크롤을 내린다. body = 모든 웹사이트에 존재
+    # 키보드의 END키 누르면 웹페이지 맨아래로이동
     browser.find_element(By.CSS_SELECTOR, "body").send_keys(Keys.END)
     time.sleep(1) # 스크롤 사이 페이지 로딩시간
     after_h = browser.execute_script("return window.scrollY")
@@ -29,7 +32,9 @@ while True:
 """
 
 # 표 column 각각 리스트로 만들기
-no, titles, urls, thumbnails, playtimes, dates, members, tags = ([] for _ in range(8))
+no, titles, urls, thumbnails, playtimes, dates, members, guests, tags = (
+    [] for _ in range(9)
+)
 
 # html에서 컨텐츠 카드 크롤링
 items = browser.find_elements(By.CSS_SELECTOR, ".LiveListView_live_list__MzGxX a")
@@ -52,7 +57,12 @@ for item in items:
     date = item.find_element(
         By.CSS_SELECTOR, 'div[class*="LiveArtistProfileView_info__"]'
     ).text
-    member = item.find_element(By.CSS_SELECTOR, "div>div:last-child ul").text
+    member = (
+        item.find_element(By.CSS_SELECTOR, "div>div:last-child ul")
+        .text.replace("민균", "MK")
+        .replace("승준", "제이어스")
+        .split()
+    )
 
     # .badge 객체 있으면 fanship = true, 없으면 false
     try:
@@ -77,16 +87,19 @@ for item in items:
     thumbnails.append(thumbnail)
     playtimes.append(playtime_fix)
     dates.append(date_fix)
-    members.append(f'["{member}"]')
+    members.append(f'["{member[0]}"]')
+    guests.append("[" + ", ".join([f'"{m}"' for m in member[1:]]) + "]")
     tags.append(f'["팬십"]' if fanship_badge else "")
 
     i += 1
 
 # list 순서 뒤집기(최신순 -> 오래된순)
-for column in [no, titles, playtimes, dates, urls, thumbnails, members, tags]:
+for column in [no, titles, playtimes, dates, urls, thumbnails, members, guests, tags]:
     column.reverse()
 
 # 표로 만들어 csv로 저장
+save_path = "/Users/user1/Downloads/weverse_scrap/live_list.csv" # csv 저장할 경로와 파일명 지정
+
 subject = pd.DataFrame(
     {
         "SubNo": no,
@@ -96,11 +109,12 @@ subject = pd.DataFrame(
         "Url": urls,
         "Thumbnail": thumbnails,
         "Member": members,
+        "Guest": guests,
         "Tag": tags,
     }
 )
 subject.to_csv(
-    "/Users/es.choi/Downloads/weverse_scrap/live_list.csv",
+    save_path,
     encoding="utf-8-sig",
     index=False,
 )
