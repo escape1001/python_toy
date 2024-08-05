@@ -12,9 +12,9 @@ chrome_path = "/Applications/Google"
 s = Service(ChromeDriverManager().install())
 browser = webdriver.Chrome(service=s)
 
-# 크롤링할 사이트 접속 - 20초 내로 로그인 해줄 것
+# 크롤링할 사이트 접속 후 >>>>수동 로그인<<<<
 browser.get("https://weverse.io/aespa/live") # 크롤링 할 아티스트 페이지 URL
-time.sleep(20)
+time.sleep(20) # 20초 내로 로그인 해줄 것
 
 #### 무한 스크롤 반복문 : 필요시 주석 해제하여 사용
 """
