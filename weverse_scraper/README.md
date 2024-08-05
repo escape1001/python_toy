@@ -59,7 +59,7 @@ sequenceDiagram
   participant SupabaseUploader as Supabase
 
   User->>Scraper: 1. 스크래퍼 RUN
-  Scraper->>Weverse: Selenium으로 데이터 스크래핑
+  Scraper->>Weverse: Selenium으로 데이터 스크래핑 (** 수동 로그인 필요)
   Weverse->>Scraper: 스크래핑한 데이터 응답
   Scraper->>User: 응답 후 자동으로 CSV 다운로드
 
@@ -75,4 +75,4 @@ sequenceDiagram
 - 스크래퍼 동작 시 thumbnail 객체를 찾을 수 없다는 에러 메세지 계속 됨. css 쿼리 확인했으나 수정된 것 없음.
 - Weverse 확인 결과 observer로 화면에 썸네일 영역 감지된 경우에만 img 태그 렌더하는 방식으로 업데이트 됨.
 - try-except로 예외처리 추가해 썸네일 url 찾지 못해도 스크래퍼 동작하도록 수정.
-- 스크래퍼 사용 시 읽어오고 싶은 만큼 충분히 스크롤을 해주는 방식으로 사용. (주로 스크롤이 필요 없는 상단 데이터만 필요하므로 코드 추가 X)
+- 스크래퍼 사용 시 읽어오고 싶은 만큼 충분히 스크롤을 해주는 방식으로 사용. (주로 스크롤이 필요 없는 상단 최신 데이터를 불러오는 용도로 제작했으므로 코드 추가 X)
