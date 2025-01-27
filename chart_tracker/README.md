@@ -1,5 +1,7 @@
 # 차트 트래커
 - 차트 트래킹 스프레드 시트 : https://docs.google.com/spreadsheets/d/1ybI1XGWPHFIWlJJ9S74-r4Y1qTNsbooge1eBvOywkWU
+- 구글 function 관리 페이지 : https://console.cloud.google.com/functions
+- 구글 스케쥴러 관리 페이지 : https://console.cloud.google.com/cloudscheduler
 
 ## 개요
 - 곡 제목을 기준으로 현재 순위를 크롤링해 구글 스프레드 시트에 업데이트
