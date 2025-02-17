@@ -225,6 +225,12 @@ def getBugs(target_song_title, bugs_sid):
 
     return bugs_data
 
+def is_duplicate_entry(sheet, date_now, time_now):
+    """마지막 행의 데이터를 가져와 현재 입력하려는 데이터와 중복인지 확인"""
+    last_row = sheet.get_all_values()[-1]  # 마지막 행 가져오기
+    last_date, last_time = last_row[:2]  # 날짜와 시간만 비교
+
+    return last_date == date_now and last_time == time_now
 
 @functions_framework.http
 def track_chart(request):
@@ -254,6 +260,10 @@ def track_chart(request):
 
     for song in target_songs:
         sheet = spreadsheet.worksheet(song["title"])
+
+        if is_duplicate_entry(sheet, date_now, time_now):
+            print(f"중복 방지: {song['title']} {time_now} 데이터가 이미 존재합니다.")
+            continue
 
         melon_data = getMelon(song["title"], song["melon_sid"])
         genie_data = getGenie(song["title"], song["genie_sid"])
